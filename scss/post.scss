@@ -1,0 +1,35 @@
+// Post SCSS for the theme.
+// We like our buttons very round.
+.btn {
+  border-radius: 1.078em;
+  font-family: $font-family-sans-serif;
+  font-size: 0.875em;
+}
+// Backgrounds everywhere.
+body.pagelayout-login {
+    background-image: $loginbackgroundimage;
+    background-size: cover;
+}
+body.pagelayout-frontpage {
+    background-image: $frontpagebackgroundimage;
+    background-size: cover;
+}
+body.pagelayout-mydashboard {
+    background-image: $dashboardbackgroundimage;
+    background-size: cover;
+}
+body.pagelayout-course,
+body.pagelayout-incourse {
+    background-image: $incoursebackgroundimage;
+    background-size: cover;
+}
+body.pagelayout-embedded,
+body.pagelayout-popup,
+body.pagelayout-secure,
+body.pagelayout-print {
+    background-image: none;
+}
+body {
+    background-image: $defaultbackgroundimage;
+    background-size: cover;
+}
