@@ -38,16 +38,20 @@ function theme_picture_get_main_scss_content($theme) {
 
     $fs = get_file_storage();
 
+    $preset = !empty($theme->settings->preset) ? $theme->settings->preset : 'light';
+
     // Main CSS - Get the CSS from theme Classic.
     $scss .= file_get_contents($CFG->dirroot . '/theme/classic/scss/classic/pre.scss');
-    $scss .= file_get_contents($CFG->dirroot . '/theme/classic/scss/preset/default.scss');
+    $scss .= file_get_contents($CFG->dirroot . '/theme/classic/scss/preset/plain.scss');
     $scss .= file_get_contents($CFG->dirroot . '/theme/classic/scss/classic/post.scss');
 
     // Pre CSS - this is loaded AFTER any prescss from the setting but before the main scss.
     $pre = file_get_contents($CFG->dirroot . '/theme/picture/scss/pre.scss');
+    $pre .= file_get_contents($CFG->dirroot . '/theme/picture/scss/' . $preset . '-pre.scss');
 
     // Post CSS - this is loaded AFTER the main scss but before the extra scss from the setting.
     $post = file_get_contents($CFG->dirroot . '/theme/picture/scss/post.scss');
+    $post .= file_get_contents($CFG->dirroot . '/theme/picture/scss/' . $preset . '-post.scss');
 
     // Combine them together.
     return $pre . "\n" . $scss . "\n" . $post;
@@ -112,5 +116,58 @@ function theme_picture_pluginfile($course, $cm, $context, $filearea, $args, $for
         return $theme->setting_file_serve($filearea, $args, $forcedownload, $options);
     } else {
         send_file_not_found();
+    }
+}
+
+
+/**
+ * Get the domain for this theme.
+ *
+ * @return String domain
+ */
+function theme_picture_get_preset() {
+    global $PAGE;
+
+    $preset = optional_param('preset', 'light', PARAM_TEXT);
+
+    if (!in_array($preset, ['dark', 'light', 'green'])) {
+        $preset = 'light';
+    }
+    return $preset;
+}
+
+/**
+ * Allows to modify URL and cache file for the theme CSS.
+ * For this to work a core hack is required in lib/outputlib.php
+ *
+ * @param moodle_url[] $urls
+ */
+function theme_picture_alter_css_urls(&$urls) {
+    global $CFG, $PAGE;
+
+    if (defined('BEHAT_SITE_RUNNING') && BEHAT_SITE_RUNNING) {
+        // No CSS switch during behat runs, or it will take ages to run a scenario.
+        return;
+    }
+
+    $preset = theme_picture_get_preset();
+
+    foreach (array_keys($urls) as $i) {
+        if (!$urls[$i] instanceof moodle_url) {
+            continue;
+        }
+        $pathstyles = preg_quote($CFG->wwwroot.'/theme/styles.php', '|');
+        if (preg_match("|^$pathstyles(/_s)?(.*)$|", $urls[$i]->out(false), $matches)) {
+            if (!empty($CFG->slasharguments)) {
+                $parts = explode('/', $matches[2]);
+                $parts[3] = right_to_left() ? 'all-' . $preset . '-rtl' : 'all-' . $preset;
+                $urls[$i] = new moodle_url('/theme/picture/css.php');
+                $urls[$i]->set_slashargument($matches[1] . join('/', $parts));
+            } else {
+                continue;
+            }
+        } else if (strpos($urls[$i]->out(false), $CFG->wwwroot.'/theme/styles_debug.php') === 0) {
+            continue;
+        }
     }
 }

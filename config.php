@@ -60,6 +60,8 @@ $THEME->rendererfactory = 'theme_overridden_renderer_factory';
 
 $THEME->prescsscallback = 'theme_picture_get_pre_scss';
 
+$THEME->extrascsscallback = '';
+
 // Since we are using 2 parent themes the correct location of the layout files needs to be define. For this theme we need the multiple
 // column layouts.
 $THEME->layouts = [
