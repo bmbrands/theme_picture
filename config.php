@@ -173,6 +173,7 @@ $THEME->layouts = [
     ),
     // The pagelayout used when a redirection is occuring.
     'redirect' => array(
+        'theme' => 'boost',
         'file' => 'embedded.php',
         'regions' => array(),
     ),
