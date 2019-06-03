@@ -105,6 +105,4 @@ if ($ADMIN->fulltree) {
 
     // Must add the page after defining all the settings!
     $settings->add($page);
-
-    $settings->add($page);
 }
